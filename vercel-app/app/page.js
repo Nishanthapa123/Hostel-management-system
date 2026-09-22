@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const seedStudents = [
   { id: 'STU-1002', name: 'Rohit Sharma', phone: '9876543211', room: '102', status: 'Paid' },
@@ -88,4 +88,28 @@ function Rooms({ rooms, setRooms, notify }) { return <section className="panel t
 function Payments({ students, notify }) { return <section className="panel table-panel"><div className="panel-head"><div><h2>Payment records</h2><p className="muted">Latest fee transactions</p></div><button className="outline" onClick={() => notify('Payment form is ready for database integration')}>＋ Record payment</button></div><div className="table-wrap"><table><thead><tr><th>Receipt</th><th>Student</th><th>Month</th><th>Amount</th><th>Status</th></tr></thead><tbody>{students.map((student, index) => <tr key={student.id}><td>#RC-{2041 - index}</td><td>{student.name}</td><td>September 2026</td><td>₹8,000</td><td><span className={student.status === 'Paid' ? 'badge paid' : 'badge due'}>{student.status}</span></td></tr>)}</tbody></table></div></section>; }
 function Requests({ notify }) { const [statuses, setStatuses] = useState(['Open', 'In progress']); return <section className="panel"><div className="panel-head"><div><h2>Support requests</h2><p className="muted">Messages from residents</p></div></div>{['Room maintenance request', 'Payment question'].map((title, index) => <div className="request" key={title}><span className="activity-icon">{index ? '₹' : '!'}</span><div><strong>{title}</strong><small>{statuses[index]} · Submitted by {index ? 'STU-1002' : 'STU-1003'}</small></div><button className="outline" onClick={() => { const next = statuses[index] === 'Open' ? 'In progress' : 'Resolved'; setStatuses(statuses.map((status, itemIndex) => itemIndex === index ? next : status)); notify(`${title} marked ${next}`); }}>{statuses[index] === 'Resolved' ? 'Resolved' : 'Update'}</button></div>)}</section>; }
 function Stat({ label, value, icon }) { return <div className="stat"><span className="stat-icon">{icon}</span><div><small>{label}</small><strong>{value}</strong></div></div>; }
-function ResidentPortal({ student, onLogout }) { const [message, setMessage] = useState(''); return <main className="app-shell"><aside><div className="brand"><span className="mark small">⌂</span>HostelMS</div><nav><button className="nav-active">▦ My overview</button></nav><button className="logout" onClick={onLogout}>↪ Sign out</button></aside><section className="workspace"><header><div><span className="kicker blue">Resident portal</span><h1>Welcome, {student.name}</h1><p className="muted">Your room, payment, and support information at a glance.</p></div><span className="profile-chip">{student.id}</span></header><div className="stats"><Stat label="Room" value={student.room} icon="⌂" /><Stat label="Fee status" value={student.status} icon="₹" /><Stat label="Next payment" value="30 Sep" icon="◷" /></div><div className="content-grid"><section className="panel wide"><div className="panel-head"><div><h2>My payment history</h2><p className="muted">Recent transactions and receipts</p></div></div><div className="payment-row"><strong>#RC-2041</strong><span>September 2026</span><b>₹8,000</b><em className="paid">Paid</em></div><div className="payment-row"><strong>#RC-1930</strong><span>August 2026</span><b>₹8,000</b><em className="paid">Paid</em></div></section><section className="panel"><div className="panel-head"><div><h2>Message admin</h2><p className="muted">Ask about your stay</p></div></div><textarea value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Write your message..." /><button className="primary" onClick={() => setMessage('Message sent to admin ✓')}>Send message →</button></section></div></section></main>; }
+function ResidentPortal({ student, onLogout }) { return <main className="app-shell"><aside><div className="brand"><span className="mark small">⌂</span>HostelMS</div><nav><button className="nav-active">▦ My overview</button></nav><button className="logout" onClick={onLogout}>↪ Sign out</button></aside><section className="workspace"><header><div><span className="kicker blue">Resident portal</span><h1>Welcome, {student.name}</h1><p className="muted">Your room, payment, and support information at a glance.</p></div><span className="profile-chip">{student.id}</span></header><div className="stats"><Stat label="Room" value={student.room} icon="⌂" /><Stat label="Fee status" value={student.status} icon="₹" /><Stat label="Next payment" value="30 Sep" icon="◷" /></div><div className="content-grid"><section className="panel wide"><div className="panel-head"><div><h2>My payment history</h2><p className="muted">Recent transactions and receipts</p></div></div><div className="payment-row"><strong>#RC-2041</strong><span>September 2026</span><b>₹8,000</b><em className="paid">Paid</em></div><div className="payment-row"><strong>#RC-1930</strong><span>August 2026</span><b>₹8,000</b><em className="paid">Paid</em></div></section><ChatPanel student={student} /></div></section></main>; }
+
+function ChatPanel({ student }) {
+  const [messages, setMessages] = useState([
+    { id: 1, sender: 'admin', text: 'Hello! How can we help with your hostel stay?', time: '09:42 AM' },
+    { id: 2, sender: 'student', text: 'I would like to confirm my room allocation for this month.', time: '09:45 AM' },
+    { id: 3, sender: 'admin', text: `Your room ${student.room} is confirmed.`, time: '09:47 AM' }
+  ]);
+  const [draft, setDraft] = useState('');
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  function sendMessage(event) {
+    event.preventDefault();
+    const text = draft.trim();
+    if (!text) return;
+    setMessages((current) => [...current, { id: Date.now(), sender: 'student', text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    setDraft('');
+  }
+
+  return <section className="panel chat-panel"><div className="chat-header"><div><h2>Chat with admin</h2><p className="muted"><span className="online-dot"></span>Admin support is available</p></div><span className="chat-lock">Private</span></div><div className="chat-messages" aria-live="polite">{messages.map((message) => <div className={`chat-message ${message.sender}`} key={message.id}><div className="chat-bubble">{message.text}</div><small>{message.sender === 'admin' ? 'Admin' : 'You'} · {message.time}</small></div>)}<div ref={messagesEndRef} /></div><form className="chat-composer" onSubmit={sendMessage}><input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Write a message..." aria-label="Message admin" /><button className="send-button" type="submit" aria-label="Send message">➤</button></form></section>;
+}
