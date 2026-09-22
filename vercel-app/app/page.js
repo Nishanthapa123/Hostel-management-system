@@ -41,12 +41,18 @@ export default function Home() {
 
   function login(event) {
     event.preventDefault();
+    const form = event.currentTarget;
     const admin = role === 'admin' && username === 'admin' && password === 'admin123';
     const resident = students.find((item) => role === 'resident' && item.id === username && item.phone === password);
+
+    // Clear every form control immediately after submission so credentials are
+    // not left visible while the login result is being processed.
+    form.reset();
+    setUsername('');
+    setPassword('');
+
     if (admin || resident) {
       setActiveResident(resident || null);
-      setUsername('');
-      setPassword('');
       setNotice('');
       setView(role === 'admin' ? 'overview' : 'resident');
       return;
@@ -60,7 +66,7 @@ export default function Home() {
 }
 
 function Login({ role, setRole, username, setUsername, password, setPassword, notice, onSubmit }) {
-  return <main className="login-shell"><section className="login-hero"><div className="mark">⌂</div><span className="kicker">Hostel operations platform</span><h1>Run your residence with clarity.</h1><p>One calm workspace for students, rooms, payments, visitors, and everyday hostel operations.</p><div className="hero-points"><span>✓ Manage residents and rooms</span><span>✓ Keep fees and requests organized</span></div></section><section className="login-panel"><span className="kicker blue">Secure access</span><h2>Welcome back</h2><p className="muted">Sign in to your {role === 'admin' ? 'admin dashboard' : 'resident portal'}.</p><div className="segmented"><button type="button" className={role === 'admin' ? 'selected' : ''} onClick={() => setRole('admin')}>Admin</button><button type="button" className={role === 'resident' ? 'selected' : ''} onClick={() => setRole('resident')}>Resident</button></div><form method="post" autoComplete="off" onSubmit={onSubmit}><label>{role === 'admin' ? 'Username' : 'Student ID'}<input name="portal-login-id" autoComplete="new-password" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={role === 'admin' ? 'admin' : 'STU-1002'} required /></label><label>{role === 'admin' ? 'Password' : 'Registered phone'}<input name="portal-login-secret" autoComplete="new-password" type={role === 'admin' ? 'password' : 'tel'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={role === 'admin' ? 'admin123' : '9876543211'} required /></label>{notice && <div className="notice">{notice}</div>}<button className="primary" type="submit">Open portal <span>→</span></button></form><small className="demo">Demo: admin / admin123</small></section></main>;
+  return <main className="login-shell"><section className="login-hero"><div className="mark">⌂</div><span className="kicker">Hostel operations platform</span><h1>Run your residence with clarity.</h1><p>One calm workspace for students, rooms, payments, visitors, and everyday hostel operations.</p><div className="hero-points"><span>✓ Manage residents and rooms</span><span>✓ Keep fees and requests organized</span></div></section><section className="login-panel"><span className="kicker blue">Secure access</span><h2>Welcome back</h2><p className="muted">Sign in to your {role === 'admin' ? 'admin dashboard' : 'resident portal'}.</p><div className="segmented"><button type="button" className={role === 'admin' ? 'selected' : ''} onClick={() => setRole('admin')}>Admin</button><button type="button" className={role === 'resident' ? 'selected' : ''} onClick={() => setRole('resident')}>Resident</button></div><form method="post" autoComplete="off" onSubmit={onSubmit}><label>{role === 'admin' ? 'Username' : 'Student ID'}<input name="portal-login-id" autoComplete="new-password" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={role === 'admin' ? 'Username' : 'Student ID'} required /></label><label>{role === 'admin' ? 'Password' : 'Registered phone'}<input name="portal-login-secret" autoComplete="new-password" type={role === 'admin' ? 'password' : 'tel'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={role === 'admin' ? 'Password' : 'Registered phone'} required /></label>{notice && <div className="notice">{notice}</div>}<button className="primary" type="submit">Open portal <span>→</span></button></form><small className="demo">Demo: admin / admin123</small></section></main>;
 }
 
 function AdminPortal({ view, setView, students, setStudents, rooms, setRooms, onLogout }) {
