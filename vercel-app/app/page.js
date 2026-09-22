@@ -30,6 +30,13 @@ export default function Home() {
   const [students, setStudents] = useState(seedStudents);
   const [rooms, setRooms] = useState(seedRooms);
 
+  function logout() {
+    setView('login');
+    setUsername('');
+    setPassword('');
+    setNotice('');
+  }
+
   function login(event) {
     event.preventDefault();
     const admin = role === 'admin' && username === 'admin' && password === 'admin123';
@@ -39,8 +46,8 @@ export default function Home() {
   }
 
   if (view === 'login') return <Login role={role} setRole={setRole} username={username} setUsername={setUsername} password={password} setPassword={setPassword} notice={notice} onSubmit={login} />;
-  if (view === 'resident') return <ResidentPortal student={students.find((item) => item.id === username)} onLogout={() => setView('login')} />;
-  return <AdminPortal view={view} setView={setView} students={students} setStudents={setStudents} rooms={rooms} setRooms={setRooms} onLogout={() => setView('login')} />;
+  if (view === 'resident') return <ResidentPortal student={students.find((item) => item.id === username)} onLogout={logout} />;
+  return <AdminPortal view={view} setView={setView} students={students} setStudents={setStudents} rooms={rooms} setRooms={setRooms} onLogout={logout} />;
 }
 
 function Login({ role, setRole, username, setUsername, password, setPassword, notice, onSubmit }) {
